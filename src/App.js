@@ -1,5 +1,5 @@
 // src/App.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
+import { supabase } from './supabase';
 
 // Import screens
 import Browse from './pages/Browse';
@@ -52,6 +54,13 @@ const FriendsStack = () => {
   );
 };
 
+// Custom header component
+const CustomHeader = ({ title }) => (
+  <View style={styles.header}>
+    <Text style={styles.headerTitle}>MovieTracker</Text>
+  </View>
+);
+
 // Main tab navigator
 const MainTabs = () => {
   return (
@@ -72,9 +81,10 @@ const MainTabs = () => {
 
           return <MaterialIcons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2196F3',
+        tabBarActiveTintColor: '#1890ff',
         tabBarInactiveTintColor: 'gray',
-        headerShown: false,
+        header: () => <CustomHeader />,
+        tabBarStyle: styles.tabBar,
       })}
     >
       <Tab.Screen name="Browse" component={BrowseStack} />
@@ -87,11 +97,44 @@ const MainTabs = () => {
 
 // Root stack navigator (includes auth screens)
 const RootStack = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Main" component={MainTabs} />
-      <Stack.Screen name="SignIn" component={SignIn} />
-      <Stack.Screen name="SignUp" component={SignUp} />
+      {user ? (
+        <Stack.Screen name="Main" component={MainTabs} />
+      ) : (
+        <>
+          <Stack.Screen name="SignIn" component={SignIn} />
+          <Stack.Screen name="SignUp" component={SignUp} />
+        </>
+      )}
       <Stack.Screen name="AuthDetails" component={AuthDetails} />
       <Stack.Screen name="Home" component={Home} />
     </Stack.Navigator>
@@ -103,12 +146,39 @@ const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider>
         <NavigationContainer>
-          <StatusBar style="auto" />
+          <StatusBar style="light" />
           <RootStack />
         </NavigationContainer>
       </PaperProvider>
     </GestureHandlerRootView>
   );
 };
+
+const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#434a54',
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  tabBar: {
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    height: 60,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f4f4f9',
+  },
+});
 
 export default App;

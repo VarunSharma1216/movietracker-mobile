@@ -197,28 +197,33 @@ const Profile = () => {
         }
       }}
     >
-      <Image
-        source={{ 
-          uri: item.poster_path 
-            ? `${POSTER_BASE_URL}${item.poster_path}` 
-            : 'https://via.placeholder.com/300x450?text=No+Image'
-        }}
-        style={styles.watchlistPoster}
-        resizeMode="cover"
-      />
-      <View style={styles.watchlistInfo}>
-        <Text numberOfLines={2} style={styles.watchlistTitle}>
-          {item.title || item.name}
-        </Text>
-        <Chip style={styles.statusChip} compact>
-          {item.status || 'Planned'}
-        </Chip>
-        {item.rating && (
-          <Text style={styles.watchlistRating}>
-            ⭐ {item.rating}/10
+      <Card style={styles.watchlistCard}>
+        <Image
+          source={{ 
+            uri: item.poster_path 
+              ? `${POSTER_BASE_URL}${item.poster_path}` 
+              : 'https://via.placeholder.com/300x450?text=No+Image'
+          }}
+          style={styles.watchlistPoster}
+          resizeMode="cover"
+        />
+        <Card.Content style={styles.watchlistContent}>
+          <Text numberOfLines={2} style={styles.watchlistTitle}>
+            {item.title || item.name}
           </Text>
-        )}
-      </View>
+          <Text numberOfLines={1} style={styles.watchlistYear}>
+            {item.release_date ? new Date(item.release_date).getFullYear() : 'N/A'} • {type}
+          </Text>
+          <Text numberOfLines={1} style={styles.watchlistRating}>
+            ⭐ {item.vote_average?.toFixed(1) || 'N/A'} ({item.vote_count || 0} votes)
+          </Text>
+          {item.status && (
+            <Chip style={styles.statusChip} compact>
+              {item.status}
+            </Chip>
+          )}
+        </Card.Content>
+      </Card>
     </TouchableOpacity>
   );
 
@@ -247,6 +252,7 @@ const Profile = () => {
           mode="outlined"
           onPress={() => navigation.navigate('Settings')}
           style={styles.button}
+          textColor="#1890ff"
         >
           Settings
         </Button>
@@ -305,6 +311,56 @@ const Profile = () => {
     </View>
   );
 
+  const renderFriendsTab = () => (
+    <View style={styles.tabContentContainer}>
+      <Card style={styles.infoCard}>
+        <Card.Content>
+          <Title>Friends</Title>
+          <Text style={styles.infoText}>
+            Connect with friends to share your movie and TV experiences!
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => {/* Add friend functionality */}}
+            style={styles.button}
+            buttonColor="#1890ff"
+          >
+            Add Friends
+          </Button>
+        </Card.Content>
+      </Card>
+    </View>
+  );
+
+  const renderSettingsTab = () => (
+    <View style={styles.tabContentContainer}>
+      <Card style={styles.infoCard}>
+        <Card.Content>
+          <Title>Settings</Title>
+          <View style={styles.settingsContainer}>
+            <Button
+              mode="outlined"
+              onPress={() => navigation.navigate('Settings')}
+              style={styles.button}
+              textColor="#1890ff"
+            >
+              Account Settings
+            </Button>
+            
+            <Button
+              mode="contained"
+              onPress={handleSignOut}
+              style={[styles.button, styles.signOutButton]}
+              buttonColor="#f44336"
+            >
+              Sign Out
+            </Button>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+  );
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -329,51 +385,100 @@ const Profile = () => {
     );
   }
 
+  const renderHeader = () => (
+    <View>
+      {/* Profile Header */}
+      <Card style={styles.profileCard}>
+        <Card.Content style={styles.profileContent}>
+          <Avatar.Text 
+            size={80} 
+            label={userProfile.username?.charAt(0).toUpperCase() || 'U'} 
+            style={styles.avatar}
+          />
+          <Title style={styles.username}>@{userProfile.username}</Title>
+          <Text style={styles.email}>{currentUser?.email}</Text>
+        </Card.Content>
+      </Card>
+
+      {/* Tab Navigation - matching web app horizontal menu */}
+      <View style={styles.tabNavigationContainer}>
+        <View style={styles.tabButtons}>
+          <Button
+            mode={activeTab === 'overview' ? 'contained' : 'outlined'}
+            onPress={() => handleTabChange('overview')}
+            style={[styles.tabButton, activeTab === 'overview' && styles.activeTabButton]}
+            buttonColor={activeTab === 'overview' ? '#1890ff' : undefined}
+            textColor={activeTab === 'overview' ? 'white' : '#1890ff'}
+            compact
+          >
+            Home
+          </Button>
+          <Button
+            mode={activeTab === 'movies' ? 'contained' : 'outlined'}
+            onPress={() => handleTabChange('movies')}
+            style={[styles.tabButton, activeTab === 'movies' && styles.activeTabButton]}
+            buttonColor={activeTab === 'movies' ? '#1890ff' : undefined}
+            textColor={activeTab === 'movies' ? 'white' : '#1890ff'}
+            compact
+          >
+            Movie List
+          </Button>
+          <Button
+            mode={activeTab === 'tv' ? 'contained' : 'outlined'}
+            onPress={() => handleTabChange('tv')}
+            style={[styles.tabButton, activeTab === 'tv' && styles.activeTabButton]}
+            buttonColor={activeTab === 'tv' ? '#1890ff' : undefined}
+            textColor={activeTab === 'tv' ? 'white' : '#1890ff'}
+            compact
+          >
+            TV List
+          </Button>
+          <Button
+            mode={activeTab === 'friends' ? 'contained' : 'outlined'}
+            onPress={() => handleTabChange('friends')}
+            style={[styles.tabButton, activeTab === 'friends' && styles.activeTabButton]}
+            buttonColor={activeTab === 'friends' ? '#1890ff' : undefined}
+            textColor={activeTab === 'friends' ? 'white' : '#1890ff'}
+            compact
+          >
+            Friends
+          </Button>
+          <Button
+            mode={activeTab === 'settings' ? 'contained' : 'outlined'}
+            onPress={() => handleTabChange('settings')}
+            style={[styles.tabButton, activeTab === 'settings' && styles.activeTabButton]}
+            buttonColor={activeTab === 'settings' ? '#1890ff' : undefined}
+            textColor={activeTab === 'settings' ? 'white' : '#1890ff'}
+            compact
+          >
+            Settings
+          </Button>
+        </View>
+      </View>
+    </View>
+  );
+
+  // Render different components based on active tab to avoid nested VirtualizedLists
+  if (activeTab === 'movies' || activeTab === 'tv') {
+    return (
+      <Surface style={styles.container}>
+        {renderHeader()}
+        <View style={styles.tabContent}>
+          {renderWatchlistTab(activeTab)}
+        </View>
+      </Surface>
+    );
+  }
+
   return (
     <Surface style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Profile Header */}
-        <Card style={styles.profileCard}>
-          <Card.Content style={styles.profileContent}>
-            <Avatar.Text 
-              size={80} 
-              label={userProfile.username?.charAt(0).toUpperCase() || 'U'} 
-              style={styles.avatar}
-            />
-            <Title style={styles.username}>@{userProfile.username}</Title>
-            <Text style={styles.email}>{currentUser?.email}</Text>
-          </Card.Content>
-        </Card>
-
-        {/* Tab Navigation */}
-        <SegmentedButtons
-          value={activeTab}
-          onValueChange={handleTabChange}
-          buttons={[
-            {
-              value: 'overview',
-              label: 'Overview',
-              icon: 'account'
-            },
-            {
-              value: 'movies',
-              label: `Movies (${movieCount})`,
-              icon: 'movie'
-            },
-            {
-              value: 'tv',
-              label: `TV (${tvCount})`,
-              icon: 'television'
-            },
-          ]}
-          style={styles.tabButtons}
-        />
-
+        {renderHeader()}
         {/* Tab Content */}
         <View style={styles.tabContent}>
           {activeTab === 'overview' && renderOverviewTab()}
-          {activeTab === 'movies' && renderWatchlistTab('movies')}
-          {activeTab === 'tv' && renderWatchlistTab('tv')}
+          {activeTab === 'friends' && renderFriendsTab()}
+          {activeTab === 'settings' && renderSettingsTab()}
         </View>
       </ScrollView>
     </Surface>
@@ -429,8 +534,25 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 8,
   },
-  tabButtons: {
+  tabNavigationContainer: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    elevation: 1,
     marginBottom: 16,
+  },
+  tabButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tabButton: {
+    borderRadius: 6,
+    borderColor: '#1890ff',
+  },
+  activeTabButton: {
+    backgroundColor: '#1890ff',
   },
   tabContent: {
     flex: 1,
@@ -452,7 +574,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: '#1890ff',
   },
   statLabel: {
     fontSize: 14,
@@ -489,30 +611,39 @@ const styles = StyleSheet.create({
   watchlistItem: {
     width: (width - 50) / 2,
     marginBottom: 16,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    elevation: 2,
-    overflow: 'hidden',
+  },
+  watchlistCard: {
+    elevation: 4,
   },
   watchlistPoster: {
     width: '100%',
     height: 200,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
   },
-  watchlistInfo: {
-    padding: 12,
+  watchlistContent: {
+    padding: 8,
+    minHeight: 100,
   },
   watchlistTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  statusChip: {
-    alignSelf: 'flex-start',
     marginBottom: 4,
+    lineHeight: 18,
+  },
+  watchlistYear: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 2,
   },
   watchlistRating: {
     fontSize: 12,
     color: '#666',
+    marginBottom: 8,
+  },
+  statusChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#1890ff',
   },
   emptyState: {
     flex: 1,
@@ -524,6 +655,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  tabContentContainer: {
+    paddingTop: 16,
+  },
+  settingsContainer: {
+    marginTop: 16,
+    gap: 12,
+  },
+  signOutButton: {
+    marginTop: 8,
   },
 });
 
