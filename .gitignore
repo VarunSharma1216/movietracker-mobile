@@ -1,37 +1,44 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# Dependencies
 node_modules/
 
-# Expo
-.expo/
+.env
+
+# Build and cache
+.cache/
 dist/
-web-build/
-expo-env.d.ts
+build/
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Metro
-.metro-health-check*
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
+# OS-specific files
 .DS_Store
-*.pem
+Thumbs.db
 
-# local env files
-.env*.local
+# Editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# typescript
-*.tsbuildinfo
+# Miscellaneous
+coverage/
+*.lock
+*.gz
+*.zip
+*.bak
+*.tmp
+*.log.*
+
+# Git large files (e.g., files that exceed GitHub's file size limits)
+*.pack
