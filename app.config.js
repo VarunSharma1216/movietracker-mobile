@@ -1,0 +1,39 @@
+import 'dotenv/config';
+
+export default {
+  expo: {
+    name: "MovieTracker Mobile",
+    slug: "movietracker-mobile",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    assetBundlePatterns: [
+      "**/*"
+    ],
+    extra: {
+      tmdbApiKey: process.env.REACT_APP_TMDB_API_KEY,
+      supabaseUrl: process.env.REACT_APP_SUPABASE_URL,
+      supabaseAnonKey: process.env.REACT_APP_SUPABASE_ANON_KEY
+    },
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.movietracker.mobile"
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff"
+      },
+      package: "com.movietracker.mobile"
+    },
+    web: {
+      favicon: "./assets/favicon.png"
+    }
+  }
+};
